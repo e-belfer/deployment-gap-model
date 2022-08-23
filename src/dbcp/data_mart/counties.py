@@ -649,19 +649,19 @@ def create_long_format(
 
     # join it all
     out = pd.concat([iso, existing, infra], axis=0, ignore_index=True)
-    out = out.merge(combined_opp, on="county_id_fips", how="left")
+    out = out.merge(
+        all_counties[["county_name", "county_id_fips"]],
+        on="county_id_fips",
+        how="outer",
+        validate="m:1",
+    )
     out["state_id_fips"] = out["county_id_fips"].str[:2]
+    out = out.merge(combined_opp, on="county_id_fips", how="left")
     out = out.merge(ncsl, on="state_id_fips", how="left", validate="m:1")
     # use canonical state and county names
     out = out.merge(
         all_states[["state_name", "state_id_fips"]],
         on="state_id_fips",
-        how="left",
-        validate="m:1",
-    )
-    out = out.merge(
-        all_counties[["county_name", "county_id_fips"]],
-        on="county_id_fips",
         how="left",
         validate="m:1",
     )
